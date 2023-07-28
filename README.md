@@ -1,2 +1,2 @@
-# ice-cream-machine-core
-Don't want vanilla? Make any flavour you want, on any platform
+## Introduction
+Ice Cream Machine is an experiment that hopes to provide a cross-platform, community-driven solution to game modding.
