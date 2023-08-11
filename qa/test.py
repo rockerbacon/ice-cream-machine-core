@@ -15,7 +15,7 @@ def run(coverage=False):
             '-coverprofile',
             get_coverage_analysis_path(),
             '-coverpkg',
-            './...'
+            os.path.join('.', '...')
         ])
 
     subprocess.run(
