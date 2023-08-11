@@ -23,3 +23,6 @@ go.work
 # main binary
 ice-cream-machine-core
 
+# qa scripts cache
+qa/__pycache__
+
