@@ -46,12 +46,23 @@ def analyze_coverage_output():
     return results
 
 def main():
-    test.run(coverage=True)
+    test_status = test.run(coverage=True)
+    if test_status == test.STATUS_FAILED:
+        sys.exit(1)
+
     coverage = analyze_coverage_output()
 
-    if coverage['total'] < MIN_COVERAGE:
+    full_coverage = coverage['total'] >= MIN_COVERAGE
+
+    if not full_coverage:
         print()
         print(f'Coverage of {coverage["total"]}% does not fufill minimum requirement of {MIN_COVERAGE}%')
+
+    if test_status == test.STATUS_INCOMPLETE_COVERAGE:
+        print()
+        print('Some packages were not covered by any tests')
+
+    if test_status != test.STATUS_SUCCESS or not full_coverage:
         sys.exit(1)
 
 if __name__ == '__main__':
