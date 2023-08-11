@@ -1,6 +1,7 @@
 package assert
 
 import (
+	"regexp"
 	testing "testing"
 )
 
@@ -45,4 +46,21 @@ func ErrorEquals(
 			expectedError.Error(),
 		)
 	}
+}
+
+func Matches(
+	t *testing.T,
+	str string,
+	pattern string,
+) {
+	hasMatch, err := regexp.MatchString(pattern, str)
+
+	if (err != nil) {
+		t.Fatalf("An error occured while matching the string: %s", err.Error())
+	}
+
+	if (!hasMatch) {
+		t.Fatalf("'%s' does not match the pattern '%s'", str, pattern)
+	}
+
 }

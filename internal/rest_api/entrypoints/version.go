@@ -3,6 +3,7 @@ package entrypoints
 import (
 	common "rockerbacon/ice-cream-machine-core/internal/rest_api/common_handlers"
 	http "net/http"
+	version "rockerbacon/ice-cream-machine-core/internal/version"
 )
 
 func getPath() string {
@@ -10,7 +11,7 @@ func getPath() string {
 }
 
 func get(*http.Request) (any, error) {
-	return "0.0.1", nil
+	return version.Get(), nil
 }
 
 func Version() *Entrypoint {
