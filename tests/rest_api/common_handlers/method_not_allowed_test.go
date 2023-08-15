@@ -5,7 +5,7 @@ import (
 	handlers "rockerbacon/ice-cream-machine-core/internal/rest_api/common_handlers"
 	api_errors "rockerbacon/ice-cream-machine-core/internal/rest_api/errors"
 	testing "testing"
-	tuple "rockerbacon/ice-cream-machine-core/internal/tuple"
+	tuple "rockerbacon/ice-cream-machine-core/pkg/tuple"
 )
 
 func TestShouldReturnAMethodNotAllowedError(t *testing.T) {
