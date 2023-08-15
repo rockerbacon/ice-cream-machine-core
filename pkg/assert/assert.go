@@ -1,66 +1,87 @@
 package assert
 
 import (
-	"regexp"
-	testing "testing"
+	fmt "fmt"
+	regexp "regexp"
 )
 
+type TestController interface {
+	Fatal(...any);
+}
+
 func Equals[T comparable](
-	t *testing.T,
+	t TestController,
 	actual T,
 	expected T,
 ) {
 	if (actual != expected) {
-		t.Fatalf(
-			"Expected value to equal %v, but got %v",
-			expected,
-			actual,
+		t.Fatal(
+			fmt.Sprintf(
+				"Expected value to equal %v, but got %v",
+				expected,
+				actual,
+			),
 		)
 	}
 }
 
-func IsNotNil[T comparable](
-	t *testing.T,
-	actual *T,
-) {
-	if (actual == nil) {
-		t.Fatal(
-			"Received nil value",
-		)
-	}
-}
+// func IsNotNil[T comparable](
+// 	t TestController,
+// 	actual *T,
+// ) {
+// 	if (actual == nil) {
+// 		t.Fatal(
+// 			"Received nil value",
+// 		)
+// 	}
+// }
 
 func ErrorEquals(
-	t *testing.T,
+	t TestController,
 	err error,
 	expectedError error,
 ) {
 	if (err == nil) {
 		t.Fatal("Function did not return error")
+		return
 	}
 
 	if (err.Error() != expectedError.Error()) {
-		t.Fatalf(
-			"Expected error with message '%s' but received '%s'",
-			err.Error(),
-			expectedError.Error(),
+		t.Fatal(
+			fmt.Sprintf(
+				"Expected error with message '%s' but received '%s'",
+				expectedError.Error(),
+				err.Error(),
+			),
 		)
 	}
 }
 
 func Matches(
-	t *testing.T,
+	t TestController,
 	str string,
 	pattern string,
 ) {
 	hasMatch, err := regexp.MatchString(pattern, str)
 
 	if (err != nil) {
-		t.Fatalf("An error occured while matching the string: %s", err.Error())
+		t.Fatal(
+			fmt.Sprintf(
+				"An error occured while matching the string: %s",
+				err.Error(),
+			),
+		)
+		return
 	}
 
 	if (!hasMatch) {
-		t.Fatalf("'%s' does not match the pattern '%s'", str, pattern)
+		t.Fatal(
+			fmt.Sprintf(
+				"'%s' does not match the pattern '%s'",
+				str,
+				pattern,
+			),
+		)
 	}
 
 }
