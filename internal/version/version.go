@@ -1,5 +1,8 @@
 package version
 
-func Get() string {
+type Service struct {
+}
+
+func (self *Service) Get() string {
 	return "0.0.1"
 }

@@ -1,63 +1,108 @@
 package entrypoints
 
 import (
-	api_errors "rockerbacon/ice-cream-machine-core/internal/rest_api/errors"
+	json "encoding/json"
 	errors "errors"
 	http "net/http"
-	json "encoding/json"
+	common "rockerbacon/ice-cream-machine-core/internal/rest_api/common_handlers"
+	api_errors "rockerbacon/ice-cream-machine-core/internal/rest_api/errors"
 )
 
-type Entrypoint struct {
-	Connect func (*http.Request) (any, error)
-	Delete func (*http.Request) (any, error)
-	Get func (*http.Request) (any, error)
-	GetPath func () string
-	Head func (*http.Request) (any, error)
-	Options func (*http.Request) (any, error)
-	Patch func (*http.Request) (any, error)
-	Post func (*http.Request) (any, error)
-	Put func (*http.Request) (any, error)
-	Trace func (*http.Request) (any, error)
+type Entrypoint interface {
+	Connect(*http.Request) (any, error)
+	Delete(*http.Request) (any, error)
+	Get(*http.Request) (any, error)
+	GetPath() string
+	Head(*http.Request) (any, error)
+	Options(*http.Request) (any, error)
+	Patch(*http.Request) (any, error)
+	Post(*http.Request) (any, error)
+	Put(*http.Request) (any, error)
+	Trace(*http.Request) (any, error)
 }
 
-func NewHandler(e *Entrypoint) http.Handler {
+type BaseEntrypoint struct {
+	path string
+}
+
+func (self *BaseEntrypoint) GetPath() string {
+	return self.path
+}
+
+func (self *BaseEntrypoint) Get(r *http.Request) (any, error) {
+	return common.MethodNotAllowed(r)
+}
+
+func (self *BaseEntrypoint) Connect(r *http.Request) (any, error) {
+	return common.MethodNotAllowed(r)
+}
+
+func (self *BaseEntrypoint) Delete(r *http.Request) (any, error) {
+	return common.MethodNotAllowed(r)
+}
+
+func (self *BaseEntrypoint) Head(r *http.Request) (any, error) {
+	return common.MethodNotAllowed(r)
+}
+
+func (self *BaseEntrypoint) Options(r *http.Request) (any, error) {
+	return common.MethodNotAllowed(r)
+}
+
+func (self *BaseEntrypoint) Patch(r *http.Request) (any, error) {
+	return common.MethodNotAllowed(r)
+}
+
+func (self *BaseEntrypoint) Post(r *http.Request) (any, error) {
+	return common.MethodNotAllowed(r)
+}
+
+func (self *BaseEntrypoint) Put(r *http.Request) (any, error) {
+	return common.MethodNotAllowed(r)
+}
+
+func (self *BaseEntrypoint) Trace(r *http.Request) (any, error) {
+	return common.MethodNotAllowed(r)
+}
+
+func NewHandler(e Entrypoint) http.Handler {
 	return http.HandlerFunc(
-		func (w http.ResponseWriter, r *http.Request) {
+		func(w http.ResponseWriter, r *http.Request) {
 			var responseBody any
 			var responseError error
 
 			switch method := r.Method; method {
-				case http.MethodConnect:
-					responseBody, responseError = e.Connect(r)
-				case http.MethodDelete:
-					responseBody, responseError = e.Delete(r)
-				case http.MethodGet, "":
-					responseBody, responseError = e.Get(r)
-				case http.MethodHead:
-					responseBody, responseError = e.Head(r)
-				case http.MethodOptions:
-					responseBody, responseError = e.Options(r)
-				case http.MethodPatch:
-					responseBody, responseError = e.Patch(r)
-				case http.MethodPost:
-					responseBody, responseError = e.Post(r)
-				case http.MethodPut:
-					responseBody, responseError = e.Put(r)
-				case http.MethodTrace:
-					responseBody, responseError = e.Trace(r)
-				default:
-					responseError = errors.New("Unknown HTTP method")
+			case http.MethodConnect:
+				responseBody, responseError = e.Connect(r)
+			case http.MethodDelete:
+				responseBody, responseError = e.Delete(r)
+			case http.MethodGet, "":
+				responseBody, responseError = e.Get(r)
+			case http.MethodHead:
+				responseBody, responseError = e.Head(r)
+			case http.MethodOptions:
+				responseBody, responseError = e.Options(r)
+			case http.MethodPatch:
+				responseBody, responseError = e.Patch(r)
+			case http.MethodPost:
+				responseBody, responseError = e.Post(r)
+			case http.MethodPut:
+				responseBody, responseError = e.Put(r)
+			case http.MethodTrace:
+				responseBody, responseError = e.Trace(r)
+			default:
+				responseError = errors.New("Unknown HTTP method")
 			}
 
 			httpError, isHttpError := responseError.(api_errors.HttpError)
 
 			var responseStatus int
-			if (isHttpError) {
+			if isHttpError {
 				responseStatus = httpError.StatusCode()
 				responseBody = api_errors.ErrorResponseBody{
 					Error: httpError.Error(),
 				}
-			} else if (responseError != nil) {
+			} else if responseError != nil {
 				responseStatus = http.StatusInternalServerError
 				responseBody = api_errors.ErrorResponseBody{
 					Error: responseError.Error(),
@@ -73,4 +118,3 @@ func NewHandler(e *Entrypoint) http.Handler {
 		},
 	)
 }
-

@@ -2,32 +2,32 @@ package rest_api
 
 import (
 	context "context"
-	entrypoints "rockerbacon/ice-cream-machine-core/internal/rest_api/entrypoints"
-	http "net/http"
 	log "log"
+	http "net/http"
+	entrypoints "rockerbacon/ice-cream-machine-core/internal/rest_api/entrypoints"
 	sync "sync"
 )
 
 type Server struct {
-	shutdownWg sync.WaitGroup
+	shutdownWg  sync.WaitGroup
 	multiplexer *http.ServeMux
 }
 
 func NewServer() Server {
-	return Server {
+	return Server{
 		multiplexer: http.NewServeMux(),
-		shutdownWg: sync.WaitGroup{},
+		shutdownWg:  sync.WaitGroup{},
 	}
 }
 
-func (self *Server)ListenAndServe() {
+func (self *Server) ListenAndServe() {
 	// TODO panic if attempting to start twice
 	self.registerEntrypoints()
 
 	httpServer := http.Server{
-			// TODO parameterize port
-			Addr: "localhost:6533",
-			Handler: self.multiplexer,
+		// TODO parameterize port
+		Addr:    "localhost:6533",
+		Handler: self.multiplexer,
 	}
 
 	go httpServer.ListenAndServe()
@@ -41,18 +41,17 @@ func (self *Server)ListenAndServe() {
 	httpServer.Shutdown(context.Background())
 }
 
-func (self *Server)Shutdown() {
+func (self *Server) Shutdown() {
 	self.shutdownWg.Done()
 }
 
-func (self *Server)registerSingleEntrypoint(e *entrypoints.Entrypoint) {
+func (self *Server) registerSingleEntrypoint(e entrypoints.Entrypoint) {
 	self.multiplexer.Handle(
 		e.GetPath(),
 		entrypoints.NewHandler(e),
 	)
 }
 
-func (self *Server)registerEntrypoints() {
+func (self *Server) registerEntrypoints() {
 	self.registerSingleEntrypoint(entrypoints.Version())
 }
-
