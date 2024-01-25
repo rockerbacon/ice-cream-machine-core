@@ -45,14 +45,14 @@ func (self *Server)Shutdown() {
 	self.shutdownWg.Done()
 }
 
-func (self *Server)registerSingleEntrypoint(e *entrypoints.Entrypoint) {
+func (self *Server)registerSingleEntrypoint(path string, controller any) {
 	self.multiplexer.Handle(
-		e.GetPath(),
-		entrypoints.NewHandler(e),
+		path,
+		entrypoints.NewHandler(controller),
 	)
 }
 
 func (self *Server)registerEntrypoints() {
-	self.registerSingleEntrypoint(entrypoints.Version())
+	self.registerSingleEntrypoint("/version/", entrypoints.VersionController{})
 }
 

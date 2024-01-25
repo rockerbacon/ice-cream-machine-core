@@ -5,20 +5,9 @@ import (
 	version "rockerbacon/ice-cream-machine-core/internal/version"
 )
 
-func getPath() string {
-	return "/version/"
-}
+type VersionController struct {}
 
-func get(*http.Request) (any, error) {
+func (VersionController) Get (r *http.Request) (any, error) {
 	return version.Get(), nil
-}
-
-func Version() *Entrypoint {
-	entrypoint := Entrypoint {
-		Get: get,
-		GetPath: getPath,
-	}
-
-	return &entrypoint
 }
 

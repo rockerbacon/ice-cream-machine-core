@@ -2,61 +2,74 @@ package entrypoints
 
 import (
 	api_errors "rockerbacon/ice-cream-machine-core/internal/rest_api/errors"
-	common "rockerbacon/ice-cream-machine-core/internal/rest_api/common_handlers"
+	common "rockerbacon/ice-cream-machine-core/internal/rest_api/common_controllers"
 	errors "errors"
 	http "net/http"
 	json "encoding/json"
+	log "log"
 )
 
-type Entrypoint struct {
-	Connect func (*http.Request) (any, error)
-	Delete func (*http.Request) (any, error)
-	Get func (*http.Request) (any, error)
-	GetPath func () string
-	Head func (*http.Request) (any, error)
-	Options func (*http.Request) (any, error)
-	Patch func (*http.Request) (any, error)
-	Post func (*http.Request) (any, error)
-	Put func (*http.Request) (any, error)
-	Trace func (*http.Request) (any, error)
+type ConnectController interface {
+	Connect (*http.Request) (any, error)
+}
+type DeleteController interface {
+	Delete (*http.Request) (any, error)
+}
+type GetController interface {
+	Get (*http.Request) (any, error)
+}
+type HeadController interface {
+	Head (*http.Request) (any, error)
+}
+type OptionsController interface {
+	Options (*http.Request) (any, error)
+}
+type PatchController interface {
+	Patch (*http.Request) (any, error)
+}
+type PostController interface {
+	Post (*http.Request) (any, error)
+}
+type PutController interface {
+	Put (*http.Request) (any, error)
+}
+type TraceController interface {
+	Trace (*http.Request) (any, error)
 }
 
-func completeEntrypoint(partial *Entrypoint) *Entrypoint {
-	complete := *partial
-
-	if complete.Connect == nil {
-		complete.Connect = common.MethodNotAllowed
-	}
-	if complete.Delete == nil {
-		complete.Delete = common.MethodNotAllowed
-	}
-	if complete.Get == nil {
-		complete.Get = common.MethodNotAllowed
-	}
-	if complete.Head == nil {
-		complete.Head = common.MethodNotAllowed
-	}
-	if complete.Options == nil {
-		complete.Options = common.MethodNotAllowed
-	}
-	if complete.Patch == nil {
-		complete.Patch = common.MethodNotAllowed
-	}
-	if complete.Post == nil {
-		complete.Post = common.MethodNotAllowed
-	}
-	if complete.Put == nil {
-		complete.Put = common.MethodNotAllowed
-	}
-	if complete.Trace == nil {
-		complete.Trace = common.MethodNotAllowed
-	}
-
-	return &complete
+type EntrypointController struct {
+	Connector ConnectController
+	Deletor DeleteController
+	Getter GetController
+	Header HeadController
+	Optioner OptionsController
+	Patcher PatchController
+	Poster PostController
+	Putter PutController
+	Tracer TraceController
 }
 
-func NewHandler(partialEntrypoint *Entrypoint) http.Handler {
-	e := completeEntrypoint(partialEntrypoint)
+func convertController[Controller any](controller any) Controller {
+	castController, controllerImplementsMethod := controller.(Controller)
+	if controllerImplementsMethod {
+		return castController
+	}
+
+	return (any)(common.MethodNotAllowed).(Controller)
+}
+
+func NewHandler(controller any) http.Handler {
+	e := EntrypointController {
+		Connector: convertController[ConnectController](controller),
+		Deletor: convertController[DeleteController](controller),
+		Getter: convertController[GetController](controller),
+		Header: convertController[HeadController](controller),
+		Optioner: convertController[OptionsController](controller),
+		Patcher: convertController[PatchController](controller),
+		Poster: convertController[PostController](controller),
+		Putter: convertController[PutController](controller),
+		Tracer: convertController[TraceController](controller),
+	}
 
 	return http.HandlerFunc(
 		func (w http.ResponseWriter, r *http.Request) {
@@ -65,23 +78,23 @@ func NewHandler(partialEntrypoint *Entrypoint) http.Handler {
 
 			switch method := r.Method; method {
 				case http.MethodConnect:
-					responseBody, responseError = e.Connect(r)
+					responseBody, responseError = e.Connector.Connect(r)
 				case http.MethodDelete:
-					responseBody, responseError = e.Delete(r)
+					responseBody, responseError = e.Deletor.Delete(r)
 				case http.MethodGet, "":
-					responseBody, responseError = e.Get(r)
+					responseBody, responseError = e.Getter.Get(r)
 				case http.MethodHead:
-					responseBody, responseError = e.Head(r)
+					responseBody, responseError = e.Header.Head(r)
 				case http.MethodOptions:
-					responseBody, responseError = e.Options(r)
+					responseBody, responseError = e.Optioner.Options(r)
 				case http.MethodPatch:
-					responseBody, responseError = e.Patch(r)
+					responseBody, responseError = e.Patcher.Patch(r)
 				case http.MethodPost:
-					responseBody, responseError = e.Post(r)
+					responseBody, responseError = e.Poster.Post(r)
 				case http.MethodPut:
-					responseBody, responseError = e.Put(r)
+					responseBody, responseError = e.Putter.Put(r)
 				case http.MethodTrace:
-					responseBody, responseError = e.Trace(r)
+					responseBody, responseError = e.Tracer.Trace(r)
 				default:
 					responseError = errors.New("Unknown HTTP method")
 			}
