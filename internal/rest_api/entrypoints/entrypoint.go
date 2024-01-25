@@ -2,6 +2,7 @@ package entrypoints
 
 import (
 	api_errors "rockerbacon/ice-cream-machine-core/internal/rest_api/errors"
+	common "rockerbacon/ice-cream-machine-core/internal/rest_api/common_handlers"
 	errors "errors"
 	http "net/http"
 	json "encoding/json"
@@ -20,7 +21,43 @@ type Entrypoint struct {
 	Trace func (*http.Request) (any, error)
 }
 
-func NewHandler(e *Entrypoint) http.Handler {
+func completeEntrypoint(partial *Entrypoint) *Entrypoint {
+	complete := *partial
+
+	if complete.Connect == nil {
+		complete.Connect = common.MethodNotAllowed
+	}
+	if complete.Delete == nil {
+		complete.Delete = common.MethodNotAllowed
+	}
+	if complete.Get == nil {
+		complete.Get = common.MethodNotAllowed
+	}
+	if complete.Head == nil {
+		complete.Head = common.MethodNotAllowed
+	}
+	if complete.Options == nil {
+		complete.Options = common.MethodNotAllowed
+	}
+	if complete.Patch == nil {
+		complete.Patch = common.MethodNotAllowed
+	}
+	if complete.Post == nil {
+		complete.Post = common.MethodNotAllowed
+	}
+	if complete.Put == nil {
+		complete.Put = common.MethodNotAllowed
+	}
+	if complete.Trace == nil {
+		complete.Trace = common.MethodNotAllowed
+	}
+
+	return &complete
+}
+
+func NewHandler(partialEntrypoint *Entrypoint) http.Handler {
+	e := completeEntrypoint(partialEntrypoint)
+
 	return http.HandlerFunc(
 		func (w http.ResponseWriter, r *http.Request) {
 			var responseBody any
