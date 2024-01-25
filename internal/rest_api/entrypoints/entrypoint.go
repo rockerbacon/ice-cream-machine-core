@@ -3,10 +3,8 @@ package entrypoints
 import (
 	api_errors "rockerbacon/ice-cream-machine-core/internal/rest_api/errors"
 	common "rockerbacon/ice-cream-machine-core/internal/rest_api/common_controllers"
-	errors "errors"
 	http "net/http"
 	json "encoding/json"
-	log "log"
 )
 
 type ConnectController interface {
@@ -96,7 +94,7 @@ func NewHandler(controller any) http.Handler {
 				case http.MethodTrace:
 					responseBody, responseError = e.Tracer.Trace(r)
 				default:
-					responseError = errors.New("Unknown HTTP method")
+					responseError = api_errors.UnknownHttpMethodError{}
 			}
 
 			httpError, isHttpError := responseError.(api_errors.HttpError)
