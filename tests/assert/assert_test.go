@@ -50,6 +50,32 @@ func TestEqualsCallsFatalWhenValuesAreDifferent(t *testing.T) {
 	}
 }
 
+func TestNotEqualsDoesNothingWhenValuesAreDifferent(t *testing.T) {
+	testingMock := NewTestingMock()
+	assert.NotEquals(&testingMock, 2, 3)
+
+	if (len(testingMock.fatalCalls) != 0) {
+		t.Fatalf(
+			"Fatal was called %d times. First call used arguments: %+v",
+			len(testingMock.fatalCalls),
+			testingMock.fatalCalls[0].arguments,
+		)
+	}
+}
+
+func TestNotEqualsCallsFatalWhenValuesAreEqual(t *testing.T) {
+	testingMock := NewTestingMock()
+	assert.NotEquals(&testingMock, 2, 2)
+
+	if (len(testingMock.fatalCalls) != 1) {
+		t.Fatalf("Fatal called incorrect number of times: %d", len(testingMock.fatalCalls))
+	}
+
+	if (testingMock.fatalCalls[0].arguments[0] != "Expected value different from 2") {
+		t.Fatalf("Fatal called with wrong arguments: %+v", testingMock.fatalCalls[0].arguments)
+	}
+}
+
 func TestErrorEqualsDoesNothingWhenErrorsAreEqual(t *testing.T) {
 	testingMock := NewTestingMock()
 	assert.ErrorEquals(&testingMock, errors.New("Hello World!"), errors.New("Hello World!"))

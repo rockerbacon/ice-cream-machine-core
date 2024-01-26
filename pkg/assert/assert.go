@@ -25,16 +25,20 @@ func Equals[T comparable](
 	}
 }
 
-// func IsNotNil[T comparable](
-// 	t TestController,
-// 	actual *T,
-// ) {
-// 	if (actual == nil) {
-// 		t.Fatal(
-// 			"Received nil value",
-// 		)
-// 	}
-// }
+func NotEquals[T comparable](
+	t TestController,
+	actual T,
+	expected T,
+) {
+	if (actual == expected) {
+		t.Fatal(
+			fmt.Sprintf(
+				"Expected value different from %v",
+				expected,
+			),
+		)
+	}
+}
 
 func ErrorEquals(
 	t TestController,
