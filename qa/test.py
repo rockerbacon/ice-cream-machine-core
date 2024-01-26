@@ -12,6 +12,12 @@ def get_test_path():
 def get_coverage_analysis_path():
     return os.path.join('qa', 'test_coverage.out')
 
+def check_is_desired_package(pkg):
+    ignored_packages = {
+        'rockerbacon/ice-cream-machine-core/internal/rest_api'
+    }
+    return pkg not in ignored_packages
+
 def list_packages():
     main_packages=[
         'internal',
@@ -33,7 +39,9 @@ def list_packages():
 
     all_packages=[]
     while line := process.stdout.readline():
-        all_packages.append(line[:-1])
+        pkg = line[:-1]
+        if check_is_desired_package(pkg):
+            all_packages.append(pkg)
 
     process.wait(1)
 
