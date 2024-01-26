@@ -7,9 +7,11 @@ import (
 )
 
 func TestReturnsVersionString(t *testing.T) {
+	manager := version.StaticVersionManager{}
+
 	assert.Matches(
 		t,
-		version.Get(),
+		manager.Get(),
 		"([[:digit:]]+\\.){2}[[:digit:]]+",
 	)
 }
