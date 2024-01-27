@@ -5,9 +5,9 @@ on:
       - opened
       - synchronize
     paths:
-      - .github/workflows/build_test.yml
-      - **.go
-      - go.mod
+      - '.github/workflows/build_test.yml'
+      - '**.go'
+      - 'go.mod'
 
 jobs:
   build:
