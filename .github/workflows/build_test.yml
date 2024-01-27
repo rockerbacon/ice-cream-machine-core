@@ -28,7 +28,9 @@ jobs:
       # Go is pre-installed in MacOS and Windows runners
       - name: Install Go
         if: ${{ matrix.runner == 'ubuntu-22.04' }}
-        run: sudo apt install golang-go
+        uses: actions/setup-go@v4
+        with:
+          go-version: 1.20
 
       - name: Build binary
         run: go build
