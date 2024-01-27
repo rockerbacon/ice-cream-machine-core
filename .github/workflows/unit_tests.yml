@@ -1,0 +1,54 @@
+name: Unit Tests
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+    paths:
+      - '.github/workflows/unit_tests.yml'
+      - '**.go'
+      - 'go.mod'
+      - 'qa/test_coverage.py'
+      - 'qa/test.py'
+
+jobs:
+  run_tests:
+    name: Run Tests
+    strategy:
+      fail-fast: true
+      matrix:
+        runner:
+          - ubuntu-22.04
+          - windows-2022
+          - macos-12
+
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      # Go is pre-installed in MacOS and Windows runners
+      - name: Install Go
+        if: ${{ matrix.runner == 'ubuntu-22.04' }}
+        run: sudo apt install golang-go
+
+      - name: Run tests
+        if: ${{ matrix.runner != 'windows-2022' }}
+        run: python3 qa/test.py
+
+      - name: Run tests
+        if: ${{ matrix.runner == 'windows-2022' }}
+        run: py qa\test.py
+
+  validate_test_coverage:
+    name: Validate Test Coverage
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      - name: Install Go
+        run: sudo apt install golang-go
+
+      - name: Validate test coverage
+        run: python3 qa/test_coverage.py
