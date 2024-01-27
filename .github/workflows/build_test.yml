@@ -1,0 +1,34 @@
+name: Build
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+    paths:
+      - '.github/workflows/build_test.yml'
+      - '**.go'
+      - 'go.mod'
+
+jobs:
+  build:
+    name: Build
+    strategy:
+      fail-fast: true
+      matrix:
+        runner:
+          - ubuntu-22.04
+          - windows-2022
+          - macos-12
+
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+
+      # Go is pre-installed in MacOS and Windows runners
+      - name: Install Go
+        if: ${{ matrix.runner == 'ubuntu-22.04' }}
+        run: sudo apt install golang-go
+
+      - name: Build binary
+        run: go build
