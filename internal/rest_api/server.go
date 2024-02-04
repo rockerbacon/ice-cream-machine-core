@@ -53,6 +53,6 @@ func (self *Server)registerSingleEntrypoint(path string, controller any) {
 }
 
 func (self *Server)registerEntrypoints() {
-	self.registerSingleEntrypoint("/version/", entrypoints.VersionController{})
+	self.registerSingleEntrypoint("/version/", entrypoints.NewVersionController())
 }
 
