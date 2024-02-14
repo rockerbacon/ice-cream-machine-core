@@ -4,6 +4,8 @@ package system_paths
 
 import (
 	assert "rockerbacon/ice-cream-machine-core/pkg/assert"
+	filepath "path/filepath"
+	os "os"
 	paths "rockerbacon/ice-cream-machine-core/pkg/system_paths"
 	testing "testing"
 )
@@ -18,10 +20,9 @@ func TestGetConfigDirPathUsesXDGEnvironmentVariable(t *testing.T) {
 }
 
 func TestGetConfigDirPathUsesXDGDefault(t *testing.T) {
-	t.Setenv("HOME", "/home/icmtests")
 	assert.Equals(
 		t,
 		paths.GetConfigDirPath(),
-		"/home/icmtests/.config",
+		filepath.Join(os.Getenv("HOME"), ".config"),
 	)
 }
